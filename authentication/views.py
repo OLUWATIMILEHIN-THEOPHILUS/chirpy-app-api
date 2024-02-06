@@ -9,6 +9,8 @@ from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
+from django.settings
+
 User = get_user_model()
 
 
@@ -79,3 +81,24 @@ class SignInView(APIView):
                 }
             return Response(data=response, status=status.HTTP_401_UNAUTHORIZED)
 
+
+class ChangePasswordView(generics.GenericAPIView):
+
+    permission_class = IsAuthenticated
+    serializer_class = ChangePasswordSerializer()
+
+    def post(self, request: Request):
+        data = request.data
+        serializer = serializers_class(data=data)
+
+        if serializer.is_valid():
+            user.check_password(serializer.data.get('old_password'))
+            user.set_password(serializer.data.get('new_password'))
+            user.save()
+
+            response = {
+                "message": "Password has been changed successfully"
+            }
+
+            return Response(data=response, status=status.HTTP_200_OK)
+        return Response(data={"error": "Old password is incorrect"}, status=status.HTTP_400_BAD_REQUEST)

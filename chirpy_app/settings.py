@@ -55,6 +55,9 @@ AUTH_USER_MODEL = 'authentication.User'
 
 REST_FRAMEWORK = {
     "NON_FIELD_ERRORS_KEY": "errors",
+    "DEFAULT_AUTHENTICATION_SETTINGS": (
+        "rest_framework.authentication.TokenBasedAuthentication",
+    );
 }
 
 MIDDLEWARE = [
