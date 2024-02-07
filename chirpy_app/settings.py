@@ -48,7 +48,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'authentication',
 ]
+
+AUTH_USER_MODEL = 'authentication.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,6 +64,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'chirpy_app.urls'
+
 
 TEMPLATES = [
     {
