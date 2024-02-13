@@ -9,20 +9,23 @@ from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
-from django.settings
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import update_session_auth_hash
+from authentication.serializers import ChangePasswordSerializer
 
 User = get_user_model()
 
 
 class SignUpView(generics.GenericAPIView):
 
-    serializers_class = SignUpSerializer    
+    serializer_class = SignUpSerializer    
 
     def post(self, request: Request):
 
         data = request.data
 
-        serializer = self.serializers_class(data=data)
+        serializer = self.serializer_class(data=data)
 
         if serializer.is_valid():
             serializer.save()
@@ -84,21 +87,25 @@ class SignInView(APIView):
 
 class ChangePasswordView(generics.GenericAPIView):
 
-    permission_class = IsAuthenticated
-    serializer_class = ChangePasswordSerializer()
+    permission_classes = [IsAuthenticated]
+    serializer_class = ChangePasswordSerializer
 
     def post(self, request: Request):
         data = request.data
-        serializer = serializers_class(data=data)
+        serializer = self.serializer_class(data=data)
 
         if serializer.is_valid():
-            user.check_password(serializer.data.get('old_password'))
-            user.set_password(serializer.data.get('new_password'))
-            user.save()
-
-            response = {
-                "message": "Password has been changed successfully"
-            }
-
-            return Response(data=response, status=status.HTTP_200_OK)
-        return Response(data={"error": "Old password is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
+            user = request.user
+            if user.check_password(serializer.validated_data['old_password']):
+                if serializer.data.get('new_password') != serializer.data.get('confirm_password'):
+                    return Response(data={"error": "Password does not match"})
+                user.set_password(serializer.validated_data['new_password'])
+                user.save()
+                update_session_auth_hash(request, user)
+                
+                response = {
+                    "message": "Password has been changed successfully"
+                }
+                return Response(data=response, status=status.HTTP_200_OK)
+            return Response(data={"error": "Old password is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

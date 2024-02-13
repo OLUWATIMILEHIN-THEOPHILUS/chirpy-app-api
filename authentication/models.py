@@ -24,7 +24,7 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractUser):
     email=models.CharField(max_length=50, unique=True)
     username=models.CharField(max_length=20, unique=True)
-    phone_number=models.CharField(max_length=15)
+    phone_number=models.CharField(max_length=15, unique=True)
     country=models.CharField(null=True, max_length=60)
     gender=models.CharField(null=True, max_length=10)
     date_of_birth=models.DateField(null=True)
