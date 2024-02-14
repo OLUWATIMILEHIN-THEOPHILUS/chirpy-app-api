@@ -9,7 +9,11 @@ from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
+from .tokens import create_jwt_pair_for_user
+
 User = get_user_model()
+
+
 
 
 class SignUpView(generics.GenericAPIView):
@@ -57,19 +61,19 @@ class SignInView(APIView):
 
     def post(self, request: Request):
 
-        # username_or_email = request.data.get('username_or_email')
-        # password = request.data.get('password')
-        # user = CustomBackend().authenticate(request=request, username=username_or_email, password=password)
-
         username = request.data.get('username') 
         password = request.data.get('password')
 
         user = CustomBackend().authenticate(request, username=username, password=password)
 
         if user is not None:
+
+            tokens = create_jwt_pair_for_user(user)
+
             response = {
                 "message": "User signed in successfully",
-                "data": [user.username, user.email]
+                "data": [user.username, user.email],
+                'tokens': tokens,
             }
 
             return Response(data=response, status=status.HTTP_200_OK)
