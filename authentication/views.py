@@ -18,23 +18,32 @@ User = get_user_model()
 
 class SignUpView(generics.GenericAPIView):
 
-    serializers_class = SignUpSerializer    
+    serializer_class = SignUpSerializer    
 
     def post(self, request: Request):
 
         data = request.data
 
-        serializer = self.serializers_class(data=data)
+        serializer = self.serializer_class(data=data)
 
         if serializer.is_valid():
             serializer.save()
 
             response = {
                 "message": "User Created Successfully",
-                "data": serializer.data
+                "data": {
+                    "user_data": serializer.data,
+                    "status": status.HTTP_201_CREATED,
+                }
             }
             return Response(data=response, status=status.HTTP_201_CREATED)
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        response = {
+            "message": "User Not Created",
+            "error": serializer.errors,
+            "status": status.HTTP_400_BAD_REQUEST,
+        }
+        return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CustomBackend(ModelBackend):
@@ -54,7 +63,12 @@ class SignInView(APIView):
     def get(self, request: Request):
         
         response = {
-            "user": str(request.user),
+            "message": "Welcome " + str(request.user),
+            "data": {
+                "user_data": str(request.user),
+                "status": status.HTTP_200_OK,
+            }
+            
         }
 
         return Response(data=response, status=status.HTTP_200_OK)
@@ -72,14 +86,21 @@ class SignInView(APIView):
 
             response = {
                 "message": "User signed in successfully",
-                "data": [user.username, user.email],
-                'tokens': tokens,
+                "data": {
+                    "user_data": {
+                        "email": user.email,
+                        "username": user.username,
+                    },
+                    "status": status.HTTP_200_OK,
+                    "tokens": tokens,
+                },
             }
 
             return Response(data=response, status=status.HTTP_200_OK)
         else:
             response = {
-                "message": "Invalid credentials"
+                "message": "Invalid credentials",
+                "status": status.HTTP_401_UNAUTHORIZED,
                 }
             return Response(data=response, status=status.HTTP_401_UNAUTHORIZED)
 
