@@ -5,23 +5,32 @@ from authentication.serializers import SignUpSerializer
 
 class SignUpView(generics.GenericAPIView):
 
-    serializers_class = SignUpSerializer    
+    serializer_class = SignUpSerializer    
 
     def post(self, request: Request):
 
         data = request.data
 
-        serializer = self.serializers_class(data=data)
+        serializer = self.serializer_class(data=data)
 
         if serializer.is_valid():
             serializer.save()
 
             response = {
                 "message": "User Created Successfully",
-                "data": serializer.data
+                "data": {
+                    "user_data": serializer.data,
+                    "status": status.HTTP_201_CREATED,
+                }
             }
             return Response(data=response, status=status.HTTP_201_CREATED)
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        response = {
+            "message": "User Not Created",
+            "error": serializer.error,
+            "status": status.HTTP_400_BAD_REQUEST,
+        }
+        return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
 
     
 
