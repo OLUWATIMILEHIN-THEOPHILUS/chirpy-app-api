@@ -27,7 +27,7 @@ class SignUpView(generics.GenericAPIView):
         
         response = {
             "message": "User Not Created",
-            "error": serializer.error,
+            "error": serializer.errors,
             "status": status.HTTP_400_BAD_REQUEST,
         }
         return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
