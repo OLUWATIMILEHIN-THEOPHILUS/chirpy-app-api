@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'authentication',
     'django_rest_passwordreset',
+    'chirps',
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
@@ -142,6 +143,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# STATIC_ROOT = 
+STATICFILES_DIR = BASE_DIR / 'static'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -154,3 +158,18 @@ EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = env('EMAIL_PORT')
+
+USE_S3 = env.bool('USE_S3', False)
+
+if USE_S3:
+    AWS_ACCESS_KEY_ID = env('S3_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env('S3_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('S3_BUCKET_NAME')
+    AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    AWS_DEFAULT_ACL = 'public-read'
+    DEFAULT_FILE_STORAGE = 'chirpy_app.storages.MediaStore'
+else:
+    DEFAULT_FILE_STORAGE = 'django.core.file.storage.FileSystemStorage'
+    MEDIA_ROOT = BASE_DIR / 'media'
+    MEDIA_URL = '/media/'
