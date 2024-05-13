@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import environ
 import os
+from datetime import timedelta
 
 env = environ.Env(
     # set casting, default value
@@ -49,17 +50,30 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'authentication',
+    'rest_framework_simplejwt',
     'django_rest_passwordreset',
     'chirps',
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
 
-REST_FRAMEWORK = {
+REST_FRAMEWORK_SETTINGS = {
     "NON_FIELD_ERRORS_KEY": "errors",
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication",
-    )
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+
+    # "Bearer <Token>"
 }
 
 MIDDLEWARE = [

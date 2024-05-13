@@ -9,12 +9,16 @@ from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
+from .tokens import create_jwt_pair_for_user
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import update_session_auth_hash
 from authentication.serializers import ChangePasswordSerializer
 
 User = get_user_model()
+
+
 
 
 class SignUpView(generics.GenericAPIView):
@@ -69,7 +73,9 @@ class SignInView(APIView):
                 "user_data": str(request.user),
                 "status": status.HTTP_200_OK,
             }
+            
         }
+
         return Response(data=response, status=status.HTTP_200_OK)
 
     def post(self, request: Request):
@@ -80,6 +86,9 @@ class SignInView(APIView):
         user = CustomBackend().authenticate(request, username=username, password=password)
 
         if user is not None:
+
+            tokens = create_jwt_pair_for_user(user)
+
             response = {
                 "message": "User signed in successfully",
                 "data": {
@@ -88,7 +97,8 @@ class SignInView(APIView):
                         "username": user.username,
                     },
                     "status": status.HTTP_200_OK,
-                }
+                    "tokens": tokens,
+                },
             }
 
             return Response(data=response, status=status.HTTP_200_OK)
