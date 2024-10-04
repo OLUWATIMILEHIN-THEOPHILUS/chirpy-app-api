@@ -1,7 +1,20 @@
 from rest_framework import generics, status
+from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.request import Request
+from rest_framework.views import APIView
 from authentication.serializers import SignUpSerializer
+
+from django.contrib.auth.backends import ModelBackend
+from django.db.models import Q
+from django.contrib.auth import get_user_model
+
+from .tokens import create_jwt_pair_for_user
+
+User = get_user_model()
+
+
+
 
 class SignUpView(generics.GenericAPIView):
 
@@ -32,5 +45,62 @@ class SignUpView(generics.GenericAPIView):
         }
         return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
 
-    
+
+class CustomBackend(ModelBackend):
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        if username is None:
+            username = kwargs.get(User.USERNAME_FIELD)
+        try:
+            user = User.objects.get(Q(username__iexact=username) | Q(email__iexact=username))
+        except User.DoesNotExist:
+            return None
+        else:
+            if user.check_password(password):
+                return user    
+
+class SignInView(APIView):
+
+    def get(self, request: Request):
+        
+        response = {
+            "message": "Welcome " + str(request.user),
+            "data": {
+                "user_data": str(request.user),
+                "status": status.HTTP_200_OK,
+            }
+            
+        }
+
+        return Response(data=response, status=status.HTTP_200_OK)
+
+    def post(self, request: Request):
+
+        username = request.data.get('username') 
+        password = request.data.get('password')
+
+        user = CustomBackend().authenticate(request, username=username, password=password)
+
+        if user is not None:
+
+            tokens = create_jwt_pair_for_user(user)
+
+            response = {
+                "message": "User signed in successfully",
+                "data": {
+                    "user_data": {
+                        "email": user.email,
+                        "username": user.username,
+                    },
+                    "status": status.HTTP_200_OK,
+                    "tokens": tokens,
+                },
+            }
+
+            return Response(data=response, status=status.HTTP_200_OK)
+        else:
+            response = {
+                "message": "Invalid credentials",
+                "status": status.HTTP_401_UNAUTHORIZED,
+                }
+            return Response(data=response, status=status.HTTP_401_UNAUTHORIZED)
 
