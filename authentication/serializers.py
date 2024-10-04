@@ -43,4 +43,16 @@ class SignUpSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+#Serializer for handling password change/update
+
+class ChangePasswordSerializer(serializers.Serializer):
+
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
+
     
+class ResetPasswordEmailSerializer(serializers.Serializer):
+    email = serializers.CharField(required=True)
