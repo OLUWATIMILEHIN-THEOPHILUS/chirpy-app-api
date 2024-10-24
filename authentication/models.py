@@ -23,7 +23,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    # uid = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
     email=models.CharField(max_length=50, unique=True)
     username=models.CharField(max_length=20, unique=True)
     phone_number=models.CharField(max_length=15, unique=True)
