@@ -50,9 +50,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'authentication',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'django_rest_passwordreset',
     'chirps',
+    'storages'
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
@@ -184,6 +186,6 @@ if USE_S3:
     AWS_DEFAULT_ACL = 'public-read'
     DEFAULT_FILE_STORAGE = 'chirpy_app.storages.MediaStore'
 else:
-    DEFAULT_FILE_STORAGE = 'django.core.file.storage.FileSystemStorage'
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     MEDIA_ROOT = BASE_DIR / 'media'
     MEDIA_URL = '/media/'

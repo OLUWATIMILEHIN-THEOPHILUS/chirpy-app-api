@@ -4,7 +4,7 @@ from chirps.models import Chirp, ChirpMedia, ChirpComment, ChirpLike
 class ChirpMediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChirpMedia
-        fields = ['media', 'caption']
+        fields = ['media', 'caption', 'media_url']
 
 class ChirpSerializer(serializers.ModelSerializer):
     text = serializers.CharField(max_length=500)

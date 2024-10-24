@@ -7,7 +7,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=80)
     username = serializers.CharField(max_length=20)
     phone_number = serializers.CharField(max_length=15)
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(min_length=6, write_only=True)
     
 
     def validate(self, attrs):
@@ -50,7 +50,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
 
     old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(min_length=6, required=True)
     confirm_password = serializers.CharField(required=True)
 
     
