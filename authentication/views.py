@@ -16,6 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import update_session_auth_hash
 from authentication.serializers import ChangePasswordSerializer
+from drf_yasg.utils import swagger_auto_schema
 
 User = get_user_model()
 
@@ -26,6 +27,10 @@ class SignUpView(generics.GenericAPIView):
 
     serializer_class = SignUpSerializer    
 
+    @swagger_auto_schema(
+        operation_summary="SignUp a User",
+        operation_description="This endpoint creates/signup a new user"
+    )
     def post(self, request: Request):
 
         data = request.data
@@ -66,19 +71,10 @@ class CustomBackend(ModelBackend):
 
 class SignInView(APIView):
 
-    def get(self, request: Request):
-        
-        response = {
-            "message": "Welcome " + str(request.user),
-            "data": {
-                "user_data": str(request.user),
-                "status": status.HTTP_200_OK,
-            }
-            
-        }
-
-        return Response(data=response, status=status.HTTP_200_OK)
-
+    @swagger_auto_schema(
+        operation_summary="SignIn a User",
+        operation_description="This endpoint authenticates and signin an existing user"
+    )
     def post(self, request: Request):
 
         username = request.data.get('username') 
@@ -117,6 +113,10 @@ class ChangePasswordView(generics.GenericAPIView):
     authentication_classes = [JWTAuthentication]
     serializer_class = ChangePasswordSerializer
 
+    @swagger_auto_schema(
+        operation_summary="Change User's Password",
+        operation_description="This endpoint allows an authenticated user to change password"
+    )
     def post(self, request: Request):
         data = request.data
         serializer = self.serializer_class(data=data)
