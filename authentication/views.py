@@ -80,7 +80,7 @@ class SignInView(APIView):
 
         serializer = self.serializer_class(data=request.data)
 
-        if serializer.is_valid:
+        if serializer.is_valid():
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
 
