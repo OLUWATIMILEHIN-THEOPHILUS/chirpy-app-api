@@ -8,7 +8,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=20)
     phone_number = serializers.CharField(max_length=15)
     password = serializers.CharField(min_length=6, write_only=True)
-    
+
 
     def validate(self, attrs):
         email_exists = User.objects.filter(email=attrs['email']).exists()
@@ -20,7 +20,7 @@ class SignUpSerializer(serializers.ModelSerializer):
         if username_exists:
             raise ValidationError('Username already taken')
         if phone_number_exists:
-            raise ValidationError('This phone number is already associated with an existing account')    
+            raise ValidationError('This phone number is already associated with an existing account')
 
         return super().validate(attrs)
 
@@ -52,7 +52,6 @@ class SignInSerializer(serializers.Serializer):
 #Serializer for handling password change/update
 
 class ChangePasswordSerializer(serializers.Serializer):
-
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(min_length=6, required=True)
     confirm_password = serializers.CharField(required=True)
