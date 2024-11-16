@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from authentication.serializers import SignUpSerializer
-from authentication.serializers import SignInSerializer
 
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
@@ -72,22 +71,16 @@ class CustomBackend(ModelBackend):
 
 class SignInView(APIView):
 
-    serializer_class = SignInSerializer
-
     @swagger_auto_schema(
         operation_summary="SignIn a User",
         operation_description="This endpoint authenticates and signin an existing user"
     )
-
     def post(self, request: Request):
 
-        serializer = self.serializer_class(data=request.data)
+        username = request.data.get('username') 
+        password = request.data.get('password')
 
-        if serializer.is_valid():
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password']
-
-            user = CustomBackend().authenticate(request, username=username, password=password)
+        user = CustomBackend().authenticate(request, username=username, password=password)
 
         if user is not None:
 
