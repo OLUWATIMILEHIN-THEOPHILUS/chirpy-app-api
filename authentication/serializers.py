@@ -44,6 +44,15 @@ class SignUpSerializer(serializers.ModelSerializer):
 
         return user
 
-class SignInSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)   
+
+#Serializer for handling password change/update
+
+class ChangePasswordSerializer(serializers.Serializer):
+
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(min_length=6, required=True)
+    confirm_password = serializers.CharField(required=True)
+
+    
+class ResetPasswordEmailSerializer(serializers.Serializer):
+    email = serializers.CharField(required=True)
