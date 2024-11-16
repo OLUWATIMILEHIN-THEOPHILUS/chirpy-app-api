@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from authentication.serializers import SignUpSerializer
+from authentication.serializers import SignInSerializer
 
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
@@ -16,6 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import update_session_auth_hash
 from authentication.serializers import ChangePasswordSerializer
+from drf_yasg.utils import swagger_auto_schema
 
 User = get_user_model()
 
@@ -26,6 +28,10 @@ class SignUpView(generics.GenericAPIView):
 
     serializer_class = SignUpSerializer    
 
+    @swagger_auto_schema(
+        operation_summary="SignUp a User",
+        operation_description="This endpoint creates/signup a new user"
+    )
     def post(self, request: Request):
 
         data = request.data
@@ -64,27 +70,23 @@ class CustomBackend(ModelBackend):
             if user.check_password(password):
                 return user    
 
-class SignInView(APIView):
+class SignInView(generics.GenericAPIView):
 
-    def get(self, request: Request):
-        
-        response = {
-            "message": "Welcome " + str(request.user),
-            "data": {
-                "user_data": str(request.user),
-                "status": status.HTTP_200_OK,
-            }
-            
-        }
+    serializer_class = SignInSerializer
 
-        return Response(data=response, status=status.HTTP_200_OK)
-
+    @swagger_auto_schema(
+        operation_summary="SignIn a User",
+        operation_description="This endpoint authenticates and signin an existing user"
+    )
     def post(self, request: Request):
 
-        username = request.data.get('username') 
-        password = request.data.get('password')
+        serializer = self.serializer_class(data=request.data)
 
-        user = CustomBackend().authenticate(request, username=username, password=password)
+        if serializer.is_valid():
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+
+            user = CustomBackend().authenticate(request, username=username, password=password)
 
         if user is not None:
 
@@ -117,6 +119,10 @@ class ChangePasswordView(generics.GenericAPIView):
     authentication_classes = [JWTAuthentication]
     serializer_class = ChangePasswordSerializer
 
+    @swagger_auto_schema(
+        operation_summary="Change User's Password",
+        operation_description="This endpoint allows an authenticated user to change password"
+    )
     def post(self, request: Request):
         data = request.data
         serializer = self.serializer_class(data=data)

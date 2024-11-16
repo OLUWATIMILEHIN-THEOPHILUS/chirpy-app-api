@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_yasg.utils import swagger_auto_schema
 
 class ChirpListCreateView(generics.GenericAPIView,
                           generics.mixins.ListModelMixin,
@@ -24,9 +25,17 @@ class ChirpListCreateView(generics.GenericAPIView,
 
         return super().perform_create(serializer)
 
+    @swagger_auto_schema(
+        operation_summary="List Chirps",
+        operation_description="This endpoint lists all chirps made by the users"
+    )
     def get(self, request: Request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
+    @swagger_auto_schema(
+        operation_summary="Create Chirp",
+        operation_description="This endpoint allows an authenticated user to create a chirp either including media with caption or without media"
+    )
     def post(self, request: Request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
@@ -40,21 +49,37 @@ class ChirpRetrieveUpdateDeleteView(generics.GenericAPIView,
     serializer_class = ChirpSerializer
     queryset = Chirp.objects.all()
 
+    @swagger_auto_schema(
+        operation_summary="Get a Chirp",
+        operation_description="This enpoint gets a single chirp"
+    )
     def get(self, request: Request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
     
+    @swagger_auto_schema(
+        operation_summary="Edit a Chirp",
+        operation_description="This endpoint allows an authenticated user to edit a chirp created by the user"
+    )
     def put(self, request: Request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
     
+    @swagger_auto_schema(
+        operation_summary="Delete a Chirp",
+        operation_description="This endpoint allows an authenticated user to delete a chirp created by the user"
+    )
     def delete(self, request: Request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
     
     
 class ChirpCommentCreateView(APIView):
-     permission_classes = [IsAuthenticated]
-     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
-     def post(self, request, chirp_id):
+    @swagger_auto_schema(
+        operation_summary="Commnent on Chirp",
+        operation_description="This endpoint allows an authenticated user to make a comment on a chirp"
+    )
+    def post(self, request, chirp_id):
         try:
             chirp = Chirp.objects.get(pk=chirp_id)
         except Chirp.DoesNotExist:
@@ -90,6 +115,10 @@ class ChirpLikeView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @swagger_auto_schema(
+        operation_summary="Like a Chirp",
+        operation_description="This endpoint allows an authenticated user to like a chirp"
+    )
     def post(self, request, chirp_id):
         try:
             chirp = Chirp.objects.get(pk=chirp_id)
