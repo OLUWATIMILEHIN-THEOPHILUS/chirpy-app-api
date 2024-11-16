@@ -63,19 +63,6 @@ class SignInView(APIView):
 
     serializer_class = SignInSerializer
 
-    def get(self, request: Request):
-        
-        response = {
-            "message": "Welcome " + str(request.user),
-            "data": {
-                "user_data": str(request.user),
-                "status": status.HTTP_200_OK,
-            }
-            
-        }
-
-        return Response(data=response, status=status.HTTP_200_OK)
-
     def post(self, request: Request):
 
         serializer = self.serializer_class(data=request.data)
