@@ -59,7 +59,7 @@ class CustomBackend(ModelBackend):
             if user.check_password(password):
                 return user    
 
-class SignInView(APIView):
+class SignInView(generics.GenericAPIView):
 
     serializer_class = SignInSerializer
 
